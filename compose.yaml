@@ -1,0 +1,26 @@
+services:
+
+  app-blue:
+
+    container_name: app-blue
+    image: ghcr.io/back-2-95/blue-green-app:build-${BUILD:?Build number is missing}
+    restart: unless-stopped
+    networks:
+      - default
+      - traefik-network
+
+  app-green:
+
+    container_name: app-green
+    image: ghcr.io/back-2-95/blue-green-app:build-${BUILD:?Build number is missing}
+    restart: unless-stopped
+    networks:
+      - default
+      - traefik-network
+
+networks:
+  default:
+    name: ${COMPOSE_PROJECT_NAME}
+  traefik-network:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik-network}
