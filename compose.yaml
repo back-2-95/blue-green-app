@@ -2,8 +2,8 @@ services:
 
   app-blue:
 
-    container_name: app-blue
-    image: ghcr.io/back-2-95/blue-green-app:build-${BUILD:?Build number is missing}
+    container_name: ${COMPOSE_PROJECT_NAME}-blue
+    image: ghcr.io/back-2-95/blue-green-app:build-${BUILD_BLUE:?Build number for Blue is missing}
     restart: unless-stopped
     networks:
       - default
@@ -11,8 +11,8 @@ services:
 
   app-green:
 
-    container_name: app-green
-    image: ghcr.io/back-2-95/blue-green-app:build-${BUILD:?Build number is missing}
+    container_name: ${COMPOSE_PROJECT_NAME}-green
+    image: ghcr.io/back-2-95/blue-green-app:build-${BUILD_GREEN:?Build number for Green is missing}
     restart: unless-stopped
     networks:
       - default
