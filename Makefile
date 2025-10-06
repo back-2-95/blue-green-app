@@ -5,13 +5,14 @@ GHA_DEPLOY_WORKFLOW ?= deploy.yml
 PROJECT ?= blue-green-app
 SSH_HOST ?= ineen
 SSH_USER ?= deployment
+TRAEFIK_API ?= http://$(SSH_HOST)/api/http
 TRAEFIK_ROUTER_NAME ?= $(PROJECT)@file
 
 -include .env.$(ENV)
 
-_current_service = $(shell curl -s http://$(SSH_HOST)/api/http/routers/$(TRAEFIK_ROUTER_NAME) | jq -r '.service')
-_service_blue = $(shell curl -s http://$(SSH_HOST)/api/http/services/$(PROJECT)-blue@file | jq -r '.name')
-_service_green = $(shell curl -s http://$(SSH_HOST)/api/http/services/$(PROJECT)-green@file | jq -r '.name')
+_current_service = $(shell curl -s $(TRAEFIK_API)/routers/$(TRAEFIK_ROUTER_NAME) | jq -r '.service')
+_service_blue = $(shell curl -s $(TRAEFIK_API)/services/$(PROJECT)-blue@file | jq -r '.name')
+_service_green = $(shell curl -s $(TRAEFIK_API)/services/$(PROJECT)-green@file | jq -r '.name')
 _latest_build = $(shell gh run list -w $(GHA_DEPLOY_WORKFLOW) -b main -L 1 --json number | jq -r '.[0].number')
 
 PHONY += debug
