@@ -1,0 +1,25 @@
+http:
+
+  routers:
+
+    blue-green-app:
+      rule: Host(`blue-green.ineen.net`)
+      service: blue-green-app-blue@file
+      entryPoints:
+        - https
+      tls:
+        certResolver: le
+        domains:
+          - main: blue-green.ineen.net
+
+  services:
+
+    blue-green-app-blue:
+      loadBalancer:
+        servers:
+          - url: http://blue-green-app-blue:80
+
+    blue-green-app-green:
+      loadBalancer:
+        servers:
+          - url: http://blue-green-app-green:80
