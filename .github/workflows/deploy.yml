@@ -11,9 +11,6 @@ on:
       - 'Dockerfile'
   workflow_dispatch:
 
-env:
-  IMAGE_NAME: ghcr.io/back-2-95/blue-green-app
-
 jobs:
 
   build:
@@ -26,7 +23,7 @@ jobs:
 
     uses: requirecloud/gha-workflows/.github/workflows/docker-image-build.yml@main
     with:
-      image: ${{ env.IMAGE_NAME }}
+      image: ghcr.io/${{ github.repository }}
       platforms: linux/arm64
     secrets: inherit
 
