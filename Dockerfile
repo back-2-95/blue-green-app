@@ -1,1 +1,1 @@
-FROM traefik/whoami
+FROM nginxdemos/hello
