@@ -1,8 +1,17 @@
 <?php
 
-echo "<h1>Hello World! This is a test</h1>";
-
 $color = getenv('TEST_INSTANCE');
+
+?>
+<html lang="en">
+<head>
+    <title>Blue/Green Test</title>
+    <link rel="favicon" href="<?= $color ?>-favicon.png" />
+</head>
+<body>
+<?php
+
+echo "<h1>Hello World! This is a Blue/Green test</h1>";
 
 // Echo environmental variables which start with TEST_
 echo "<h2>Environmental Variables</h2>";
@@ -53,3 +62,8 @@ foreach ($headers as $header => $value) {
 
 echo "</tbody>";
 echo "</table>";
+
+?>
+</body>
+</html>
+

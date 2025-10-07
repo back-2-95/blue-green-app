@@ -6,8 +6,8 @@ services:
     image: ghcr.io/back-2-95/blue-green-app:build-${BUILD_BLUE:?Build number for Blue is missing}
     restart: unless-stopped
     environment:
-      TEST_BUILD: ${BUILD_BLUE}
-      TEST_INSTANCE: blue
+      BUILD: ${BUILD_BLUE}
+      INSTANCE: blue
     networks:
       - default
       - traefik-network
@@ -18,8 +18,8 @@ services:
     image: ghcr.io/back-2-95/blue-green-app:build-${BUILD_GREEN:?Build number for Green is missing}
     restart: unless-stopped
     environment:
-      TEST_BUILD: ${BUILD_GREEN}
-      TEST_INSTANCE: green
+      BUILD: ${BUILD_GREEN}
+      INSTANCE: green
     networks:
       - default
       - traefik-network
