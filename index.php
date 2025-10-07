@@ -1,6 +1,6 @@
 <?php
 
-$color = getenv('TEST_INSTANCE');
+$color = getenv('INSTANCE');
 
 ?>
 <html lang="en">
