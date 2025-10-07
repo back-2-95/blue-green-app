@@ -12,10 +12,12 @@ echo "<tbody>";
 
 // Display headers in table rows
 foreach (getenv() as $env => $value) {
-    echo "<tr>";
-    echo "<td><strong>" . $env . "</strong></td>";
-    echo "<td>" . $value . "</td>";
-    echo "</tr>";
+    if (!str_starts_with($env, 'HTTP_')) {
+        echo "<tr>";
+        echo "<td><strong>" . $env . "</strong></td>";
+        echo "<td>" . $value . "</td>";
+        echo "</tr>";
+    }
 }
 
 echo "</tbody>";

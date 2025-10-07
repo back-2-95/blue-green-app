@@ -91,5 +91,5 @@ jobs:
 
       - name: Clear old images
         run: |
-          docker image prune -a --force \
+          docker -H ssh://deployment@ineen image prune -a --force \
           --filter "label=org.opencontainers.image.source=https://github.com/${{ github.repository }}"
