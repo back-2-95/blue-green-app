@@ -2,15 +2,24 @@
 
 echo "<h1>Hello World! This is a test</h1>";
 
+$color = getenv('TEST_INSTANCE');
+
 // Echo environmental variables which start with TEST_
 echo "<h2>Environmental Variables</h2>";
-foreach (getenv() as $key => $value) {
-    if (str_starts_with($key, 'TEST_')) {  // PHP 8+
-        echo "<p><strong>" . htmlspecialchars($key) . "</strong>: " . htmlspecialchars($value) . "</p>";
-    }
+echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse;'>";
+echo "<thead style='color:white;background-color:".$color."'><tr><th>Header</th><th>Value</th></tr></thead>";
+echo "<tbody>";
+
+// Display headers in table rows
+foreach (getenv() as $env => $value) {
+    echo "<tr>";
+    echo "<td><strong>" . $env . "</strong></td>";
+    echo "<td>" . $value . "</td>";
+    echo "</tr>";
 }
 
-$color = getenv('TEST_INSTANCE');
+echo "</tbody>";
+echo "</table>";
 
 // Display HTTP request headers in a table
 echo "<h2>Request Headers</h2>";
