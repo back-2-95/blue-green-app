@@ -14,8 +14,8 @@ $color = getenv('TEST_INSTANCE');
 
 // Display HTTP request headers in a table
 echo "<h2>Request Headers</h2>";
-echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse;color:white;background-color:".$color."'>";
-echo "<thead><tr><th>Header</th><th>Value</th></tr></thead>";
+echo "<table border='1' cellpadding='10' cellspacing='0' style='border-collapse: collapse;'>";
+echo "<thead style='color:white;background-color:".$color."'><tr><th>Header</th><th>Value</th></tr></thead>";
 echo "<tbody>";
 
 // Get all headers
