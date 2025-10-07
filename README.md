@@ -20,9 +20,22 @@
   - defines `BUILD_BLUE=current-build-123` and `BUILD_GREEN=${{ github.run_number }}`
   - deploys a new build to `green` service with Docker Compose: `BUILD_BLUE=123 BUILD_GREEN=124 docker compose up app-green --wait`
   - does possible deployment tasks (e.g. database migrations)
-  - checks if the new `green` service is ready and healthy for receiving traffic
+  - checks if the new `green` service is ready and healthy for receiving traffic (this is app specific)
   - updates the router configuration to point to the new service (or informs devs in e.g. Slack and devs do this manually)
 
 Notes:
 
 - Docker image tags won't have a mention of `blue` or `green`, tag is just `build-123`
+
+## Example flow
+
+- `build-1` is active as `blue` service and Traefik router routes traffic to that service
+- New deployment happens, `build-2` is built and deployed to `green` service
+- `build-2` is ready and healthy
+- Traefik router is updated to route traffic to `green` service
+- `build-1` is no longer active (and optionally deleted)
+- New deployment happens, `build-3` is built and deployed to `blue` service
+- `build-3` is ready and healthy
+- Traefik router is updated to route traffic to `blue` service
+- `build-2` is no longer active (and optionally deleted)
+- and so on...
