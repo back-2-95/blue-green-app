@@ -6,7 +6,7 @@ $color = getenv('INSTANCE');
 <html lang="en">
 <head>
     <title>Blue/Green Test</title>
-    <link rel="favicon" href="<?= $color ?>-favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="<?= $color ?>-favicon.png" />
 </head>
 <body>
 <?php
