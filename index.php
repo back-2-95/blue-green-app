@@ -2,14 +2,10 @@
 
 echo "<h1>Hello World! This is a test</h1>";
 
-// Echo client ip
-echo "<h2>Client IP</h2>";
-echo "<p>Your IP address is: " . $_SERVER['REMOTE_ADDR'] . "</p>";
-
 // Echo environmental variables which start with TEST_
 echo "<h2>Environmental Variables</h2>";
-foreach ($_ENV as $key => $value) {
-    if (strpos($key, 'TEST_') === 0) {
+foreach (getenv() as $key => $value) {
+    if (str_starts_with($key, 'TEST_')) {  // PHP 8+
         echo "<p><strong>" . htmlspecialchars($key) . "</strong>: " . htmlspecialchars($value) . "</p>";
     }
 }
