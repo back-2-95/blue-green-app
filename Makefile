@@ -14,11 +14,12 @@ _current_service = $(shell curl -s $(TRAEFIK_API)/routers/$(TRAEFIK_ROUTER_NAME)
 _service_blue = $(shell curl -s $(TRAEFIK_API)/services/$(PROJECT)-blue@file | jq -r '.name')
 _service_green = $(shell curl -s $(TRAEFIK_API)/services/$(PROJECT)-green@file | jq -r '.name')
 _latest_build = $(shell gh run list -w $(GHA_DEPLOY_WORKFLOW) -b main -L 1 --json number | jq -r '.[0].number')
-_next_service = $(shell echo "$(_current_service)" | grep -q "blue" && echo "green" || echo "blue")
+_next_service = $(shell echo "$(_current_service)" | grep -q "$(PROJECT)-blue" && echo "green" || echo "blue")
 
 PHONY += debug
 debug:
 	@echo "Router points currently to service: \033[1;36m$(_current_service)\033[0m (if null, then router does not exist)"
+	@echo "Current service: \033[1;36m$(_current_service)\033[0m (if null, then service does not exist)"
 	@echo "Blue service: \033[1;36m$(_service_blue)\033[0m (if null, then service does not exist)"
 	@echo "Green service: \033[1;36m$(_service_green)\033[0m (if null, then service does not exist)"
 	@echo "Latest build number: \033[1;36mbuild-$(_latest_build)\033[0m"
