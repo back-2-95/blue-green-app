@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/deploy.yml'
       - 'Dockerfile'
+      - 'index.php'
   workflow_dispatch:
 
 jobs:

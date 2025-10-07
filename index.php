@@ -23,7 +23,7 @@ if (function_exists('getallheaders')) {
     // Fallback for servers where getallheaders() is not available
     $headers = [];
     foreach ($_SERVER as $key => $value) {
-        if (substr($key, 0, 5) === 'HTTP_') {
+        if (str_starts_with($key, 'HTTP_')) {
             $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
             $headers[$header] = $value;
         }
