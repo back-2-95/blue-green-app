@@ -48,15 +48,9 @@ jobs:
       - name: Set context
         run: |
           make debug
-        env:
-          GH_TOKEN: ${{ github.token }}
 
       - name: Validate Docker Compose config
-        run: |
-          BUILD_BLUE=${{ github.run_number }} \
-          BUILD_GREEN=${{ github.run_number }} \
-          env $(grep -v '^#' .env.prod | xargs) \
-          docker compose config
+        run: BUILD=${{ github.run_number }} make config
 
       - name: Tailscale
         uses: tailscale/github-action@v3
@@ -88,11 +82,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Start up container with new image
-        run: |
-          BUILD_BLUE=${{ github.run_number }} \
-          BUILD_GREEN=${{ github.run_number }} \
-          env $(grep -v '^#' .env.prod | xargs) \
-          docker compose up --wait --force-recreate
+        run: BUILD=${{ github.run_number }} make deploy
+
+      - name: Check that new service is up and healthy
+        run: echo "do something here"
+
+      - name: Update router
+        run: make update-traefik-conf
 
       - name: Clear old images
         run: |
