@@ -17,9 +17,8 @@ _current_service = $(shell curl -s $(TRAEFIK_API)/routers/$(TRAEFIK_ROUTER_NAME)
 #_service_blue = $(shell curl -s $(TRAEFIK_API)/services/$(PROJECT)-blue@file | jq -r '.name')
 #_service_green = $(shell curl -s $(TRAEFIK_API)/services/$(PROJECT)-green@file | jq -r '.name')
 _current = $(shell echo "$(_current_service)" | grep -q "$(PROJECT)-blue" && echo "blue" || echo "green")
-_current_container = $(shell $(_docker) inspect $(subst @file,,$(_current_service)) -f '{{json .Config.Image}}'))
-_current_build_raw = $(shell $(_docker) inspect $(subst @file,,$(_current_service)) -f '{{json .Config.Image}}')
-_current_build = $(shell echo "$(_current_build_raw)" | sed -n 's/.*:build-\([0-9]*\).*/\1/p')
+_current_container = $(shell $(_docker) inspect $(subst @file,,$(_current_service)) -f '{{json .Config.Image}}')
+_current_build = $(shell echo "$(_current_container)" | sed -n 's/.*:build-\([0-9]*\).*/\1/p')
 _next = $(shell echo "$(_current_service)" | grep -q "$(PROJECT)-blue" && echo "green" || echo "blue")
 _blue_build = $(shell echo "$(_current_service)" | grep -q "$(PROJECT)-blue" && echo "$(_current_build)" || echo "${BUILD}")
 _green_build = $(shell echo "$(_current_service)" | grep -q "$(PROJECT)-blue" && echo "${BUILD}" || echo "$(_current_build)")
@@ -45,7 +44,7 @@ config:
 	docker compose config
 
 PHONY += deploy
-deploy: config
+deploy:
 	BUILD_BLUE=$(_blue_build) \
 	BUILD_GREEN=$(_green_build) \
 	env $(shell grep -v '^#' .env.prod | xargs) \
