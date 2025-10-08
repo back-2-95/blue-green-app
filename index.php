@@ -1,5 +1,7 @@
 <?php
 
+exit(1);
+
 $color = getenv('INSTANCE');
 
 ?>
