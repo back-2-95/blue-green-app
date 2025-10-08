@@ -48,7 +48,7 @@ deploy:
 	BUILD_BLUE=$(_blue_build) \
 	BUILD_GREEN=$(_green_build) \
 	env $(shell grep -v '^#' .env.prod | xargs) \
-	docker compose up --wait --force-recreate
+	docker compose up app-$(_next) --wait
 
 PHONY += update-traefik-conf
 update-traefik-conf: NEXT := $(_next)
