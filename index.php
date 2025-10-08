@@ -1,8 +1,8 @@
 <?php
 
 // Break the app
-header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
-exit(1);
+//header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+//exit(1);
 
 $color = getenv('INSTANCE');
 
