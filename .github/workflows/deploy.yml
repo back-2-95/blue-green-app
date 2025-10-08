@@ -84,13 +84,10 @@ jobs:
         run: BUILD=${{ github.run_number }} make deploy
 
       - name: Check that new service is up and healthy
-        run: |
-          env $(grep -v '^#' .env.prod | xargs) \
-          docker exec blue-green-app-blue curl -s http://localhost:8080
-          echo "do something here" && sleep 5
+        run: make test-health
 
-      - name: Update router
-        run: make update-traefik-conf
+      - name: Switch router
+        run: make switch-router
 
       - name: Clear old images
         run: |

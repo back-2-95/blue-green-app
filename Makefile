@@ -8,6 +8,7 @@ SSH_USER ?= deployment
 TRAEFIK_API ?= http://$(SSH_HOST)/api/http
 TRAEFIK_ROUTER_NAME ?= $(PROJECT)@file # Example: my-project-prod@file
 TRAEFIK_DYNAMIC_CONF_PATH ?= /opt/traefik/dynamic
+EXPECTED_STRING ?= Blue/Green
 
 -include .env.$(ENV)
 
@@ -38,29 +39,52 @@ debug:
 
 PHONY += config
 config:
-	BUILD_BLUE=$(_blue_build) \
-	BUILD_GREEN=$(_green_build) \
+	BUILD_BLUE=$(_blue_build) BUILD_GREEN=$(_green_build) \
 	env $(shell grep -v '^#' .env.prod | xargs) \
 	docker compose config
 
 PHONY += deploy
 deploy:
-	BUILD_BLUE=$(_blue_build) \
-	BUILD_GREEN=$(_green_build) \
+	BUILD_BLUE=$(_blue_build) BUILD_GREEN=$(_green_build) \
 	env $(shell grep -v '^#' .env.prod | xargs) \
 	docker compose up app-$(_next) --wait
 
-PHONY += test
-test:
-	@env $(shell grep -v '^#' .env.prod | xargs) \
-	docker exec $(PROJECT)-$(_next) curl -s http://localhost:8080
+PHONY += test-health
+test-health: MAX_ATTEMPTS ?= 10
+test-health: SLEEP_INTERVAL ?= 3
+test-health:
+	@export $$(grep -v '^#' .env.prod | xargs) && \
+	for i in $$(seq 1 $(MAX_ATTEMPTS)); do \
+	  	echo "Attempt $$i/$(MAX_ATTEMPTS)"; \
+		RESULT=$$(docker exec $(PROJECT)-$(_next) curl -s -w "\n%{http_code}" http://localhost:8080 2>/dev/null); \
+		if [ $$? -ne 0 ]; then \
+			sleep $(SLEEP_INTERVAL); \
+			continue; \
+		fi; \
+		STATUS=$$(echo "$$RESULT" | tail -n 1); \
+		BODY=$$(echo "$$RESULT" | sed '$$d'); \
+		if [ "$$STATUS" -eq 200 ]; then \
+			if echo "$$BODY" | grep -q "$(EXPECTED_STRING)"; then \
+				echo "✅ All good"; \
+				exit 0; \
+			else \
+				echo "❌ Response did not contain: $(EXPECTED_STRING)"; \
+				exit 1; \
+			fi; \
+		fi; \
+		if [ $$i -eq $(MAX_ATTEMPTS) ]; then \
+		  	echo "❌ did not get HTTP 200 after $(MAX_ATTEMPTS) attempts, got: $$STATUS"; \
+			exit 1; \
+		fi; \
+		sleep $(SLEEP_INTERVAL); \
+	done
 
-PHONY += update-traefik-conf
-update-traefik-conf: NEXT := $(_next)
-update-traefik-conf: OUTPUT_FILE := /tmp/_dynamic.yaml
-update-traefik-conf:
+PHONY += switch-router
+switch-router: NEXT := $(_next)
+switch-router: OUTPUT_FILE := /tmp/_dynamic.yaml
+switch-router:
 	@yq ".http.routers.$(PROJECT).service = \"$(PROJECT)-$(NEXT)@file\"" config/traefik/$(PROJECT).yaml > $(OUTPUT_FILE)
-	@yq e '.' $(OUTPUT_FILE) >/dev/null 2>&1 && echo "✓ Valid" || (echo "✗ Invalid" && exit 1)
+	@yq e '.' $(OUTPUT_FILE) >/dev/null 2>&1 && || (echo "❌ Invalid Yaml syntax" && exit 1)
 	@scp $(OUTPUT_FILE) $(SSH_USER)@$(SSH_HOST):$(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml
 	@rm $(OUTPUT_FILE)
 
