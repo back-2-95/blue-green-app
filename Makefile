@@ -50,6 +50,11 @@ deploy:
 	env $(shell grep -v '^#' .env.prod | xargs) \
 	docker compose up app-$(_next) --wait
 
+PHONY += test
+test:
+	@env $(shell grep -v '^#' .env.prod | xargs) \
+	docker exec $(PROJECT)-$(_next) curl -s http://localhost:8080
+
 PHONY += update-traefik-conf
 update-traefik-conf: NEXT := $(_next)
 update-traefik-conf: OUTPUT_FILE := /tmp/_dynamic.yaml

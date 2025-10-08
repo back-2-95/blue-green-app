@@ -68,8 +68,7 @@ jobs:
               ControlPersist yes
 
       - name: Set context
-        run: |
-          make debug
+        run: BUILD=${{ github.run_number }} make debug
 
       - name: Validate Docker Compose config
         run: BUILD=${{ github.run_number }} make config
@@ -85,12 +84,16 @@ jobs:
         run: BUILD=${{ github.run_number }} make deploy
 
       - name: Check that new service is up and healthy
-        run: echo "do something here" && sleep 5
+        run: |
+          env $(grep -v '^#' .env.prod | xargs) \
+          docker exec blue-green-app-blue curl -s http://localhost:8080
+          echo "do something here" && sleep 5
 
       - name: Update router
         run: make update-traefik-conf
 
       - name: Clear old images
         run: |
-          docker -H ssh://deployment@ineen image prune -a --force \
+          env $(grep -v '^#' .env.prod | xargs) \
+          docker image prune -a --force \
           --filter "label=org.opencontainers.image.source=https://github.com/${{ github.repository }}"
