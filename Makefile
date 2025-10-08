@@ -84,8 +84,9 @@ switch-router: NEXT := $(_next)
 switch-router: OUTPUT_FILE := /tmp/_dynamic.yaml
 switch-router:
 	@yq ".http.routers.$(PROJECT).service = \"$(PROJECT)-$(NEXT)@file\"" config/traefik/$(PROJECT).yaml > $(OUTPUT_FILE)
-	@yq e '.' $(OUTPUT_FILE) >/dev/null 2>&1 && || (echo "❌ Invalid Yaml syntax" && exit 1)
-	@scp $(OUTPUT_FILE) $(SSH_USER)@$(SSH_HOST):$(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml
+	@yq e '.' $(OUTPUT_FILE) >/dev/null 2>&1 || (echo "❌ Invalid Yaml syntax" && exit 1)
+	@scp -q -o LogLevel=QUIET $(OUTPUT_FILE) $(SSH_USER)@$(SSH_HOST):$(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml
 	@rm $(OUTPUT_FILE)
+	@echo "$(NEXT) is now active"
 
 .PHONY: $(PHONY)
