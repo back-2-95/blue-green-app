@@ -38,6 +38,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: prod
+
     steps:
 
       - uses: actions/checkout@v5
@@ -45,6 +48,8 @@ jobs:
       - name: Set context
         run: |
           make debug
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Validate Docker Compose config
         run: |
