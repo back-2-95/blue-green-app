@@ -14,7 +14,7 @@
 ## Requirements
 
 - Docker: `docker` and `docker compose` commands
-- Binaries: `env`, `grep`, `make`, `curl`, `jq`, `sed`, `ssh` and `yq`
+- Binaries: `bash`, `env`, `grep`, `make`, `curl`, `jq`, `sed`, `ssh` and `yq`
 - SSH access to the remote server (example assumes Zero Trust connectivity for accessing Traefik API)
 
 ## Process of deployment

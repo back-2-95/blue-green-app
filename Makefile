@@ -1,5 +1,6 @@
 PHONY :=
 
+SHELL := /bin/bash
 ENV ?= prod
 PROJECT ?= blue-green-app
 SSH_HOST ?= ineen
