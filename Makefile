@@ -51,11 +51,12 @@ deploy:
 PHONY += test-health
 test-health: MAX_ATTEMPTS ?= 10
 test-health: SLEEP_INTERVAL ?= 3
+test-health: URL ?= http://localhost:8080
 test-health:
 	@export $$(grep -v '^#' .env.$(ENV) | xargs) && \
 	for i in $$(seq 1 $(MAX_ATTEMPTS)); do \
 	  	echo "Attempt $$i/$(MAX_ATTEMPTS)"; \
-		RESULT=$$(docker exec $(PROJECT)-$(_next) curl -s -w "\n%{http_code}" http://localhost:8080 2>/dev/null); \
+		RESULT=$$(docker exec $(PROJECT)-$(_next) curl -s -w "\n%{http_code}" $(URL) 2>/dev/null); \
 		if [ $$? -ne 0 ]; then \
 			sleep $(SLEEP_INTERVAL); \
 			continue; \
@@ -80,12 +81,12 @@ test-health:
 
 PHONY += switch-router
 switch-router: NEXT := $(_next)
-switch-router: OUTPUT_FILE := /tmp/_dynamic.yaml
 switch-router:
-	@yq ".http.routers.$(PROJECT).service = \"$(PROJECT)-$(NEXT)@file\"" config/traefik/$(PROJECT).yaml > $(OUTPUT_FILE)
-	@yq e '.' $(OUTPUT_FILE) >/dev/null 2>&1 || (echo "❌ Invalid Yaml syntax" && exit 1)
-	@scp -q -o LogLevel=QUIET $(OUTPUT_FILE) $(SSH_USER)@$(SSH_HOST):$(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml
-	@rm $(OUTPUT_FILE)
+	@set -o pipefail; \
+	yq ".http.routers.$(PROJECT).service = \"$(PROJECT)-$(NEXT)@file\"" config/traefik/$(PROJECT).yaml | \
+	yq e '.' - | \
+	ssh $(SSH_USER)@$(SSH_HOST) "cat > $(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml" \
+	|| (echo "❌ Invalid Yaml syntax" && exit 1)
 	@echo "✅ $(NEXT) is now active"
 
 .PHONY: $(PHONY)
