@@ -11,6 +11,12 @@
 - Github Actions will deploy a new build to the other service
 - Github Actions will update the router configuration to point to the new service (when it's ready)
 
+## Requirements
+
+- Docker: `docker` and `docker compose` commands
+- Binaries: `env`, `grep`, `make`, `curl`, `jq`, `sed`, `ssh` and `yq`
+- SSH access to the remote server (example assumes Zero Trust connectivity for accessing Traefik API)
+
 ## Process of deployment
 
 - Push to `main` branch
@@ -119,6 +125,33 @@ This command:
 - Points the router to the next (newly deployed) service
 - Copies the configuration to the remote server via SCP
 
+#### `make clear-old-images`
+Removes old Docker images from the remote server based on a label filter. This helps clean up unused images after deployments to free up disk space.
+
+**Usage:**
+```bash
+# LABEL parameter is required
+make clear-old-images LABEL=org.opencontainers.image.source=https://github.com/owner/repository
+```
+
+**Required Parameters:**
+- `LABEL` - Docker image label filter to identify which images to prune
+  - Commonly used with `org.opencontainers.image.source` label to target images from a specific GitHub repository
+
+**Example:**
+```bash
+# In GitHub Actions
+make clear-old-images LABEL=org.opencontainers.image.source=https://github.com/${{ github.repository }}
+
+# Manual cleanup for a specific repository
+make clear-old-images LABEL=org.opencontainers.image.source=https://github.com/myorg/myproject
+```
+
+This command:
+- Connects to the remote Docker host
+- Prunes all images matching the specified label filter
+- Uses `docker image prune -a --force` to remove unused images
+
 ### Configurable Variables
 
 The following variables can be overwritten when calling make commands or by setting them in your environment:
@@ -144,12 +177,6 @@ The following variables can be overwritten when calling make commands or by sett
 - **`SSH_USER`** (default: `deployment`)
   - SSH user for remote server operations
 
-- **`TRAEFIK_API`** (default: `http://$(SSH_HOST)/api/http`)
-  - Traefik API endpoint URL
-
-- **`TRAEFIK_ROUTER_NAME`** (default: `$(PROJECT)@file`)
-  - Name of the Traefik router to manage
-
 - **`TRAEFIK_DYNAMIC_CONF_PATH`** (default: `/opt/traefik/dynamic`)
   - Path to Traefik dynamic configuration directory on remote server
 
@@ -167,7 +194,7 @@ The following variables can be overwritten when calling make commands or by sett
 
 ### Usage Examples
 
-**Deploy with custom project name:**
+**Deploy with a custom project name:**
 ```bash
 make deploy PROJECT=my-app
 ```

@@ -83,6 +83,9 @@ jobs:
       - name: Start up container with new image
         run: BUILD=${{ github.run_number }} make deploy
 
+      - name: Post deployment tasks
+        run: echo "Post deployment tasks"
+
       - name: Check that new service is up and healthy
         run: make test-health
 
@@ -90,7 +93,4 @@ jobs:
         run: make switch-router
 
       - name: Clear old images
-        run: |
-          env $(grep -v '^#' .env.prod | xargs) \
-          docker image prune -a --force \
-          --filter "label=org.opencontainers.image.source=https://github.com/${{ github.repository }}"
+        run: make clear-old-images LABEL=org.opencontainers.image.source=https://github.com/${{ github.repository }}
