@@ -1,6 +1,5 @@
 PHONY :=
 
-SHELL := /bin/bash
 ENV ?= prod
 PROJECT ?= blue-green-app
 SSH_HOST ?= ineen
@@ -55,6 +54,7 @@ PHONY += test-health
 test-health: MAX_ATTEMPTS ?= 10
 test-health: SLEEP_INTERVAL ?= 3
 test-health: URL ?= http://localhost:8080
+test-health: SHELL := /bin/bash
 test-health:
 	@export $$(grep -v '^#' .env.$(ENV) | xargs) && \
 	for i in $$(seq 1 $(MAX_ATTEMPTS)); do \
