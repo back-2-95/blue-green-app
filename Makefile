@@ -24,19 +24,21 @@ PHONY += debug
 debug:
 	$(eval SERVICE_BLUE := $(shell curl -s http://$(SSH_HOST)/api/http/services/$(PROJECT)-blue@file | jq -r '.name'))
 	$(eval SERVICE_GREEN := $(shell curl -s http://$(SSH_HOST)/api/http/services/$(PROJECT)-green@file | jq -r '.name'))
-	@echo "Router: \033[1;36m$(_router_name)\033[0m (if null, then router does not yet exist)"
-	@echo "Blue service: \033[1;36m$(SERVICE_BLUE)\033[0m (if null, then service does not yet exist)"
-	@echo "Green service: \033[1;36m$(SERVICE_GREEN)\033[0m (if null, then service does not yet exist)"
+	@echo "🔀 Router: \033[1;36m$(_router_name)\033[0m (if null, then router does not yet exist)"
+	@echo "🔵 Blue service: \033[1;36m$(SERVICE_BLUE)\033[0m (if null, then service does not yet exist)"
+	@echo "🟢 Green service: \033[1;36m$(SERVICE_GREEN)\033[0m (if null, then service does not yet exist)"
 	@echo "----------"
-	@echo "CURRENT: \033[1;36m$(_current)\033[0m"
+	@echo "CURRENT: \033[1;36m$(_current)\033[0m $(if $(filter blue,$(_current)),🔵,🟢)"
 	@echo "-Service: \033[1;36m$(_current_service)\033[0m (if null, then service does not yet exist)"
 	@echo "-Image: \033[1;36m$(_current_image)\033[0m"
 	@echo "-Build: \033[1;36m$(_current_build)\033[0m"
 	@echo "----------"
-	@echo "NEXT: \033[1;36m$(_next)\033[0m"
+	@echo "NEXT: \033[1;36m$(_next)\033[0m $(if $(filter blue,$(_next)),🔵,🟢)"
 	@echo "-Service: \033[1;36m$(PROJECT)-$(_next)@file\033[0m"
-	@echo "-Env BUILD_BLUE: \033[1;36m$(_blue_build)\033[0m for blue container"
-	@echo "-Env BUILD_GREEN: \033[1;36m$(_green_build)\033[0m for green container"
+	@echo "----------"
+	@echo "Envs for Docker Compose:"
+	@echo "-BUILD_BLUE: \033[1;36m$(_blue_build)\033[0m for blue container"
+	@echo "-BUILD_GREEN: \033[1;36m$(_green_build)\033[0m for green container"
 
 PHONY += config
 config:
