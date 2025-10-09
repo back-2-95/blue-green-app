@@ -54,7 +54,6 @@ PHONY += test-health
 test-health: MAX_ATTEMPTS ?= 10
 test-health: SLEEP_INTERVAL ?= 3
 test-health: URL ?= http://localhost:8080
-test-health: SHELL := /bin/bash
 test-health:
 	@export $$(grep -v '^#' .env.$(ENV) | xargs) && \
 	for i in $$(seq 1 $(MAX_ATTEMPTS)); do \
@@ -85,11 +84,20 @@ test-health:
 PHONY += switch-router
 switch-router: NEXT := $(_next)
 switch-router:
-	@set -o pipefail; \
-	yq ".http.routers.$(PROJECT).service = \"$(PROJECT)-$(NEXT)@file\"" config/traefik/$(PROJECT).yaml | \
-	yq e '.' - | \
-	ssh $(SSH_USER)@$(SSH_HOST) "cat > $(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml" \
-	|| (echo "❌ Invalid Yaml syntax" && exit 1)
+	@TEMP_FILE=$$(mktemp); \
+	yq ".http.routers.$(PROJECT).service = \"$(PROJECT)-$(NEXT)@file\"" config/traefik/$(PROJECT).yaml > "$$TEMP_FILE"; \
+	if [ $$? -ne 0 ]; then \
+		rm -f "$$TEMP_FILE"; \
+		echo "❌ Invalid Yaml syntax"; \
+		exit 1; \
+	fi; \
+	yq e '.' "$$TEMP_FILE" | ssh $(SSH_USER)@$(SSH_HOST) "cat > $(TRAEFIK_DYNAMIC_CONF_PATH)/$(PROJECT).yaml"; \
+	RESULT=$$?; \
+	rm -f "$$TEMP_FILE"; \
+	if [ $$RESULT -ne 0 ]; then \
+		echo "❌ Invalid Yaml syntax"; \
+		exit 1; \
+	fi
 	@echo "✅ $(NEXT) is now active"
 
 PHONY += clear-old-images

@@ -45,7 +45,7 @@ jobs:
 
       - uses: actions/checkout@v5
 
-      - name: Tailscale
+      - name: Setup Tailscale connection
         uses: tailscale/github-action@v3
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
@@ -57,17 +57,9 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
-          known_hosts: unnecessary
-          if_key_exists: replace
-          config: |
-            Host ineen
-              HostName ineen
-              StrictHostKeyChecking no
-              ControlMaster auto
-              ControlPath ~/.ssh/control-%C
-              ControlPersist yes
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-      - name: Set context
+      - name: Show Blue/Green plan
         run: BUILD=${{ github.run_number }} make debug
 
       - name: Validate Docker Compose config
