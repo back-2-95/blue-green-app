@@ -39,20 +39,20 @@ debug:
 PHONY += config
 config:
 	BUILD_BLUE=$(_blue_build) BUILD_GREEN=$(_green_build) \
-	env $(shell grep -v '^#' .env.prod | xargs) \
+	env $(shell grep -v '^#' .env.$(ENV) | xargs) \
 	docker compose config
 
 PHONY += deploy
 deploy:
 	BUILD_BLUE=$(_blue_build) BUILD_GREEN=$(_green_build) \
-	env $(shell grep -v '^#' .env.prod | xargs) \
+	env $(shell grep -v '^#' .env.$(ENV) | xargs) \
 	docker compose up app-$(_next) --wait
 
 PHONY += test-health
 test-health: MAX_ATTEMPTS ?= 10
 test-health: SLEEP_INTERVAL ?= 3
 test-health:
-	@export $$(grep -v '^#' .env.prod | xargs) && \
+	@export $$(grep -v '^#' .env.$(ENV) | xargs) && \
 	for i in $$(seq 1 $(MAX_ATTEMPTS)); do \
 	  	echo "Attempt $$i/$(MAX_ATTEMPTS)"; \
 		RESULT=$$(docker exec $(PROJECT)-$(_next) curl -s -w "\n%{http_code}" http://localhost:8080 2>/dev/null); \

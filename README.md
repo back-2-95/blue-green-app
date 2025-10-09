@@ -59,6 +59,8 @@ Displays debugging information about the current state of the blue/green deploym
 **Usage:**
 ```bash
 make debug
+# With BUILD variable (recommended for deployments)
+BUILD=123 make debug
 ```
 
 #### `make config`
@@ -67,6 +69,8 @@ Generates and displays the Docker Compose configuration with current build numbe
 **Usage:**
 ```bash
 make config
+# With BUILD variable (required for deployments)
+BUILD=123 make config
 ```
 
 #### `make deploy`
@@ -74,7 +78,10 @@ Deploys the next (inactive) service with the new build.
 
 **Usage:**
 ```bash
-make deploy
+# BUILD variable is required for deployments
+BUILD=123 make deploy
+# In GitHub Actions
+BUILD=${{ github.run_number }} make deploy
 ```
 
 This command:
@@ -117,6 +124,12 @@ This command:
 The following variables can be overwritten when calling make commands or by setting them in your environment:
 
 #### Core Variables
+
+- **`BUILD`** (no default, must be provided for deployment commands)
+  - Build number to be deployed to the inactive service
+  - Used by `debug`, `config`, and `deploy` commands
+  - Example: `BUILD=123 make deploy`
+  - In GitHub Actions: `BUILD=${{ github.run_number }} make deploy`
 
 - **`ENV`** (default: `prod`)
   - Environment name, used to load `.env.$(ENV)` file
@@ -167,10 +180,13 @@ make test-health MAX_ATTEMPTS=20 SLEEP_INTERVAL=5
 **Full deployment workflow:**
 ```bash
 # Check current state
-make debug
+BUILD=123 make debug
+
+# Validate configuration
+BUILD=123 make config
 
 # Deploy to inactive service
-make deploy
+BUILD=123 make deploy
 
 # Verify health
 make test-health
