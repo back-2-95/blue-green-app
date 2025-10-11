@@ -41,6 +41,9 @@ jobs:
     environment:
       name: prod
 
+    env:
+      BUILD: ${{ github.run_number }}
+
     steps:
 
       - uses: tailscale/github-action@v3
@@ -64,16 +67,19 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Show Blue/Green plan
-        run: BUILD=${{ github.run_number }} make debug
+        run: make debug
 
       - name: Validate Docker Compose config
-        run: BUILD=${{ github.run_number }} make config
+        run: make config
+
+      - name: Pull new image(s)
+        run: make pull
 
       - name: Start up container with new image
-        run: BUILD=${{ github.run_number }} make deploy
+        run: make deploy
 
-      - name: Post deployment tasks
-        run: echo "Post deployment tasks" && sleep 10
+      - name: Run post-deployment tasks
+        run: echo "Post deployment tasks" && sleep 5
 
   switch:
 

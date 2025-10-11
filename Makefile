@@ -46,6 +46,12 @@ config:
 	env $(shell grep -v '^#' .env.$(ENV) | xargs) \
 	docker compose config
 
+PHONY += pull
+pull:
+	BUILD_BLUE=$(_blue_build) BUILD_GREEN=$(_green_build) \
+	env $(shell grep -v '^#' .env.$(ENV) | xargs) \
+	docker compose pull app-$(_next)
+
 PHONY += deploy
 deploy:
 	BUILD_BLUE=$(_blue_build) BUILD_GREEN=$(_green_build) \
