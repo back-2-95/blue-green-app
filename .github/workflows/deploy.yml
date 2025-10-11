@@ -43,13 +43,15 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v5
-
-      - name: Setup Tailscale connection
-        uses: requirecloud/gha-workflows/.github/workflows/zero-trust-ssh.yml@main
+      - uses: requirecloud/gha-workflows/.github/workflows/zero-trust-ssh.yml@main
         with:
           zerotrust: tailscale
-        secrets: inherit
+          ts_oauth_client_id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          ts_oauth_secret: ${{ secrets.TS_OAUTH_SECRET }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          private_ssh_key: ${{ secrets.PRIVATE_SSH_KEY }}
+
+      - uses: actions/checkout@v5
 
       - name: Show Blue/Green plan
         run: BUILD=${{ github.run_number }} make debug
@@ -85,13 +87,15 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v5
-
-      - name: Setup Tailscale connection
-        uses: requirecloud/gha-workflows/.github/workflows/zero-trust-ssh.yml@main
+      - uses: requirecloud/gha-workflows/.github/workflows/zero-trust-ssh.yml@main
         with:
           zerotrust: tailscale
-        secrets: inherit
+          ts_oauth_client_id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          ts_oauth_secret: ${{ secrets.TS_OAUTH_SECRET }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          private_ssh_key: ${{ secrets.PRIVATE_SSH_KEY }}
+
+      - uses: actions/checkout@v5
 
       - name: Check that new service is up and healthy
         run: make test-health
