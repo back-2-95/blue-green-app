@@ -64,7 +64,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Show Blue/Green plan
         run: make debug
@@ -108,7 +108,7 @@ jobs:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Check that new service is up and healthy
         run: make test-health
