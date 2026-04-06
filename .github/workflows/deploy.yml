@@ -58,7 +58,7 @@ jobs:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
