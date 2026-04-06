@@ -89,6 +89,32 @@ test-health:
 		sleep $(SLEEP_INTERVAL); \
 	done
 
+PHONY += test-live
+test-live: MAX_ATTEMPTS ?= 10
+test-live: SLEEP_INTERVAL ?= 3
+test-live: LIVE_URL ?= https://blue-green.ineen.net
+test-live:
+	@for i in $$(seq 1 $(MAX_ATTEMPTS)); do \
+		echo "Attempt $$i/$(MAX_ATTEMPTS)"; \
+		RESULT=$$(curl -s -w "\n%{http_code}" $(LIVE_URL) 2>/dev/null); \
+		STATUS=$$(echo "$$RESULT" | tail -n 1); \
+		BODY=$$(echo "$$RESULT" | sed '$$d'); \
+		if [ "$$STATUS" -eq 200 ]; then \
+			if echo "$$BODY" | grep -q "$(EXPECTED_STRING)"; then \
+				echo "✅ Live URL is healthy"; \
+				exit 0; \
+			else \
+				echo "❌ Response did not contain: $(EXPECTED_STRING)"; \
+				exit 1; \
+			fi; \
+		fi; \
+		if [ $$i -eq $(MAX_ATTEMPTS) ]; then \
+			echo "❌ did not get HTTP 200 after $(MAX_ATTEMPTS) attempts, got: $$STATUS"; \
+			exit 1; \
+		fi; \
+		sleep $(SLEEP_INTERVAL); \
+	done
+
 PHONY += switch-router
 switch-router: NEXT := $(_next)
 switch-router:
@@ -107,6 +133,12 @@ switch-router:
 		exit 1; \
 	fi
 	@echo "✅ $(NEXT) is now active"
+
+PHONY += stop-old
+stop-old:
+	$(_docker) stop $(PROJECT)-$(_next) 2>/dev/null || true
+	$(_docker) rm $(PROJECT)-$(_next) 2>/dev/null || true
+	@echo "✅ Stopped and removed $(PROJECT)-$(_next)"
 
 PHONY += clear-old-images
 clear-old-images:

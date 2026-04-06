@@ -116,5 +116,11 @@ jobs:
       - name: Switch router
         run: make switch-router
 
+      - name: Verify live URL is healthy
+        run: make test-live
+
+      - name: Stop and remove idle container
+        run: make stop-old
+
       - name: Clear old images
         run: make clear-old-images LABEL=org.opencontainers.image.source=https://github.com/${{ github.repository }}
